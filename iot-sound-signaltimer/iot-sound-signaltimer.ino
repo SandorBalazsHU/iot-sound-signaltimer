@@ -19,10 +19,15 @@ char currentScreen = 0;
 char tempCurrentScreen = 0;
 bool timerRunning = false;
 char lastPressedKey = 0;
+int  currentTime = 0;
 
 //Debouncing időzítő
 unsigned long lastDebounceTime = 0;
 const unsigned long debounceTime = 150;
+
+//Fő időzítő
+unsigned long lastMainTime = 0;
+const unsigned long mainTime = 1000;
 
 //Beállítás állapotváltozók
 #define EEPROM_ADDR 0
@@ -128,6 +133,15 @@ void printLcdInt(int x, int y, int value) {
 
 void timerReset(){}
 void timerStart(){}
+void updateTimer(){
+  if(timerRunning){
+    unsigned long now = millis();
+    if(now - lastMainTime > mainTime){
+      lastMainTime = now;
+      currentTime++;
+    }
+  }
+}
 
 //Kezdőképernyő
 void screen_0_start(){
@@ -155,8 +169,10 @@ void screen_0_start(){
 void screen_1_running(){
     lcd.setCursor(0,0);
     lcd.print("->FELIDOIG: 0000");
+    printLcdInt(12,0,currentTime);
     lcd.setCursor(0,1);
     lcd.print("->VEGEIG:   0000");
+     printLcdInt(12,1,currentTime);
     lcd.setCursor(0,0);
 
     readButtons();
@@ -242,6 +258,7 @@ void setup() {
 
 //Központi ciklus
 void loop() {
+  updateTimer();
   screenHandler();
 
 /*readButtons();
