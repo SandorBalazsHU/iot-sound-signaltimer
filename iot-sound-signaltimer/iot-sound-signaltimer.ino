@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <EEPROM.h>
 
 // --- Preprocesszor makrók ---
 #define BUTTON_MENU_PIN   2
@@ -14,6 +15,63 @@ bool menuPressed  = false;
 bool upPressed    = false;
 bool downPressed  = false;
 bool setPressed   = false;
+char currentScreen = 0;
+char tempCurrentScreen = 0;
+bool timerRunning = false;
+char lastPressedKey = 0;
+
+// --- Debouncing időzítő
+unsigned long lastTime = 0;
+const unsigned long debounceTime = 200;
+
+// --- Képernyő időzítő változók ---
+unsigned long screenLastTime = 0;
+const unsigned long screenUpdatePeriod = 50;
+
+// --- Beállítás állapotváltozók ---
+#define EEPROM_ADDR 0
+#define SIGNATURE_VALUE 117
+struct Config {
+  uint8_t signature = SIGNATURE_VALUE;
+  int soundFreq = 1100;
+  int soundLength = 800;
+  int soundInterval = 2;
+  int endSoundFreq = 800;
+  int endSoundLength = 2000;
+  int endSoundNumber = 1;
+  int middleSoundFreq = 1500;
+  int middleSoundLenght = 1000;
+  int middleSoundNumber = 2;
+  int fullLength = 60;
+  int startDelay = 2;
+};
+
+Config def_cfg;
+Config cfg;
+
+// --- Állapotváltozók betöltése ---
+void loadConfig(){
+  EEPROM.get(EEPROM_ADDR, cfg);
+
+  if(cfg.signature != SIGNATURE_VALUE) {
+    EEPROM.put(EEPROM_ADDR, def_cfg);
+    lcd.setCursor(0,0);
+    lcd.print("  EEPROM ELSO   ");
+    lcd.setCursor(0,1);
+    lcd.print("     IRAS       ");
+    delay(2000);
+    lcd.clear();
+    lcd.setCursor(0,0);
+  } else {
+    lcd.setCursor(0,0);
+    lcd.print(" EEPROM MEMORIA ");
+    lcd.setCursor(0,1);
+    lcd.print("   KIOLVASVA    ");
+    delay(2000);
+    lcd.clear();
+    lcd.setCursor(0,0);
+  }
+}
 
 // --- Gomb inicializálás ---
 void buttonSetup() {
@@ -23,15 +81,28 @@ void buttonSetup() {
   pinMode(BUTTON_SET_PIN, INPUT_PULLUP);
 }
 
+bool debounceRead(int pin){
+  bool state = !digitalRead(pin); // PULLUP
+  if(state){
+    unsigned long now = millis();
+    if(now - lastTime > debounceTime){
+      lastTime = now;
+      return true;
+    }
+    return false;
+  }
+  return false;
+}
+
 // --- Gombok leolvasása ---
 void readButtons() {
   // ha bármelyik már aktív, nem vizsgálunk újat
   if (menuPressed || upPressed || downPressed || setPressed) return;
 
-  bool menuState = !digitalRead(BUTTON_MENU_PIN);
-  bool upState   = !digitalRead(BUTTON_UP_PIN);
-  bool downState = !digitalRead(BUTTON_DOWN_PIN);
-  bool setState  = !digitalRead(BUTTON_SET_PIN);
+  bool menuState = debounceRead(BUTTON_MENU_PIN);
+  bool upState   = debounceRead(BUTTON_UP_PIN);
+  bool downState = debounceRead(BUTTON_DOWN_PIN);
+  bool setState  = debounceRead(BUTTON_SET_PIN);
 
   int pressedCount = menuState + upState + downState + setState;
 
@@ -45,62 +116,138 @@ void readButtons() {
   else if (setState) setPressed = true;
 }
 
-// --- Reset függvény (pergésmentesítéssel) ---
+// --- Reset függvény ---
 void resetButtons() {
   menuPressed = false;
   upPressed = false;
   downPressed = false;
   setPressed = false;
-  delay(200); // egyszerű pergésmentesítés
 }
 
+void beep(int pin, int freq, int duration, int repeat) {
+  for (int i = 0; i < repeat; i++) {
+    tone(pin, freq);           // hang indítása adott frekvencián
+    delay(duration);           // hang ideje
+    noTone(pin);               // leállítás
+    //delay(100);                // kis szünet az ismétlések között
+  }
+}
+
+void printLcdInt(int x, int y, int value) {
+  char buf[5]; // 4 karakter + lezáró null
+  sprintf(buf, "%04d", value); // 4 széles leading null-val
+  lcd.setCursor(x, y);
+  lcd.print(buf);
+}
+
+void screen_0_start(){
+  lcd.setCursor(0,0);
+  lcd.print("-MECCS IDOZITO!-");
+  lcd.setCursor(0,1);
+  lcd.print("     START?     ");
+  lcd.setCursor(0,0);
+
+  readButtons();
+  if(setPressed) {
+    currentScreen = 1;
+    timerRunning = true;
+  }
+  resetButtons();
+}
+
+void screen_1_running(){
+    lcd.setCursor(0,0);
+    lcd.print("->FELIDOIG: 0000");
+    lcd.setCursor(0,1);
+    lcd.print("->VEGEIG:   0000");
+    lcd.setCursor(0,0);
+
+    readButtons();
+    if(setPressed) {
+      currentScreen = 2;
+      timerRunning = false;
+    }
+    resetButtons();
+}
+
+void screen_2_pause(){
+    lcd.setCursor(0,0);
+    lcd.print("----SZUNETEL----");
+    lcd.setCursor(0,0);
+
+    readButtons();
+    if(setPressed) {
+      currentScreen = 1;
+      timerRunning = true;
+    }
+    resetButtons();
+}
+
+void screen_3_menu(){
+    timerRunning = false;
+    lcd.setCursor(0,0);
+    lcd.print("------MENU------");
+    lcd.setCursor(0,1);
+    lcd.print("FREKVENCIA      ");
+    lcd.setCursor(0,0);
+
+    readButtons();
+    if(menuPressed) {
+      currentScreen = 1;
+      timerRunning = true;
+    }
+    resetButtons();
+}
+
+void screenHandler() {
+  readButtons();
+  if(menuPressed) {
+    currentScreen = 3;
+    timerRunning = false;
+  }
+  resetButtons();
+
+  switch (currentScreen) {
+      case 0:
+        screen_0_start();
+        break;
+      case 1:
+        screen_1_running();
+        break;
+      case 2:
+        screen_2_pause();
+        break;
+      case 3:
+        screen_3_menu();
+        break;
+      default:
+        // statements
+        break;
+    }
+}
+
+// --- Rendszer előkészítése ---
 void setup() {
   delay(200);
+  Serial.begin(9600);
   buttonSetup();
   lcd.init();
   lcd.backlight();
   lcd.clear();
   lcd.setCursor(0,0);
-
-  /*delay(200);
-
-  lcd.init();
-  lcd.backlight();
-  lcd.setCursor(0,0);
-  lcd.print("IDOZITO FUT!");
-  lcd.setCursor(0,1);
-  lcd.print("10:30 1.FELIDO");
-
-  delay(200); 
-  lcd.clear();
-
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("500");
-  beep(8, 500, 1000, 1);
-  delay(1000);
-
-
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("800");
-  beep(8, 800, 1000, 1);
-  delay(1000);
-
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("1100");
-  beep(8, 1100, 1000, 1);
-  delay(1000);*/
+  loadConfig();
+  delay(100);
 }
 
+// --- Központi ciklus ---
 void loop() {
-  lcd.setCursor(0,0);
-  lcd.print("IDOZITO FUT!");
-  lcd.setCursor(0,1);
-  lcd.print("10:30 1.FELIDO");
+  unsigned long screenCurrentTime = millis();
+  if(screenCurrentTime - screenLastTime >= screenUpdatePeriod) {
+    screenLastTime = screenCurrentTime;
+    screenHandler();
+  }
 
-  readButtons();
+/*  readButtons();
   lcd.setCursor(0,0);
 
   if(menuPressed) {
@@ -123,13 +270,5 @@ void loop() {
   resetButtons();
   delay(100);
   //lcd.clear();
-}
-
-void beep(int pin, int freq, int duration, int repeat) {
-  for (int i = 0; i < repeat; i++) {
-    tone(pin, freq);           // hang indítása adott frekvencián
-    delay(duration);           // hang ideje
-    noTone(pin);               // leállítás
-    delay(100);                // kis szünet az ismétlések között
-  }
+  */
 }

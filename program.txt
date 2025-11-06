@@ -1,22 +1,33 @@
 -->Kijelző:
-############
-############
+################
+################
 
 -->Start képernyő:
-############
-KEZDODHET A
-MECCS?
+################
+-MECCS IDOZITO!-
+     START?     
 
 -->Főképrnyő:
-PROGRAM FUT!
-0 02 2 120 3
+################
+->FELIDOIG: 0000
+->VEGEIG:   0000
+
+-->Szünet menü:
+################
+----SZUNETEL----
 
 -->Menü:
-MENU
-PROGRAMOZAS
-FREKVENCIA
-SZUNET
+################
+------MENU------
+FREKVENCIA      
+
 KILEPES
+
+
+
+
+
+
 
 -->Lapozható menü
 ALLITANDO:
@@ -37,9 +48,7 @@ ALLITANDO:
   ####  ####
 H:0500F:0800
 
--->Szünet menü:
-      # ## #
-SZUN: 2 15 2
+
 
 -->Fő pattern:
 sorszám (int step1 0-9) | indítási késleltetés (min step1 01-99) | első hang szám (db step1 0-9) | időzítés (min step5 05-995) | második hang szám (db step1 0-9)
