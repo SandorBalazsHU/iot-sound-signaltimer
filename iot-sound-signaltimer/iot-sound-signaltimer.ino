@@ -7,7 +7,7 @@
 #define BUTTON_UP_PIN     3
 #define BUTTON_DOWN_PIN   4
 #define BUTTON_SET_PIN    5
-#define BUZZER_PIN        8   // Hangjel kimenet
+#define BUZZER_PIN        8
 
 //Globális állapotváltozók
 LiquidCrystal_I2C lcd(0x27, 16, 2); 
@@ -21,12 +21,8 @@ bool timerRunning = false;
 char lastPressedKey = 0;
 
 //Debouncing időzítő
-unsigned long lastTime = 0;
-const unsigned long debounceTime = 200;
-
-//Képernyő időzítő változók
-unsigned long screenLastTime = 0;
-const unsigned long screenUpdatePeriod = 50;
+unsigned long lastDebounceTime = 0;
+const unsigned long debounceTime = 150;
 
 //Beállítás állapotváltozók
 #define EEPROM_ADDR 0
@@ -97,18 +93,13 @@ void readButtons() {
   if (pressedCount > 1) return;
 
   unsigned long now = millis();
-  if(now - lastTime > debounceTime){
-    lastTime = now;
+  if(now - lastDebounceTime > debounceTime){
+    lastDebounceTime = now;
     if (menuState) menuPressed = true;
     else if (upState) upPressed = true;
     else if (downState) downPressed = true;
     else if (setState) setPressed = true;
   }
-
-  /*if (menuState) menuPressed = true;
-  else if (upState) upPressed = true;
-  else if (downState) downPressed = true;
-  else if (setState) setPressed = true;*/
 }
 
 //Reset függvény
@@ -124,7 +115,7 @@ void beep(int pin, int freq, int duration, int repeat) {
     tone(pin, freq);           // hang indítása adott frekvencián
     delay(duration);           // hang ideje
     noTone(pin);               // leállítás
-    //delay(100);                // kis szünet az ismétlések között
+    delay(10);                // kis szünet az ismétlések között
   }
 }
 
@@ -251,36 +242,20 @@ void setup() {
 
 //Központi ciklus
 void loop() {
-  /*unsigned long screenCurrentTime = millis();
-  if(screenCurrentTime - screenLastTime >= screenUpdatePeriod) {
-    screenLastTime = screenCurrentTime;
-    screenHandler();
-  }*/
-
   screenHandler();
 
-/*  readButtons();
-  lcd.setCursor(0,0);
-
+/*readButtons();
   if(menuPressed) {
     lcd.print("menuPressed");
   }
-
   if(upPressed) {
     lcd.print("upPressed");
   }
-
   if(downPressed) {
     lcd.print("downPressed");
   }
-
   if(setPressed) {
     lcd.print("setPressed");
     beep(8, 1100, 1000, 1);
-  }
-
-  resetButtons();
-  delay(100);
-  //lcd.clear();
-  */
+  }*/
 }
