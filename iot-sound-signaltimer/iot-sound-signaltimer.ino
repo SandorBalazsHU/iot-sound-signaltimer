@@ -31,12 +31,15 @@ const unsigned long mainTime = 1000;
 
 //Beállítás állapotváltozók
 #define EEPROM_ADDR 0
-#define SIGNATURE_VALUE 117
+#define SIGNATURE_VALUE 42
 struct Config {
   uint8_t signature = SIGNATURE_VALUE;
   int soundFreq = 1100;
   int soundLength = 800;
   int soundInterval = 2;
+  int startSoundFreq = 800;
+  int startSoundLength = 2000;
+  int startSoundNumber = 1;
   int endSoundFreq = 800;
   int endSoundLength = 2000;
   int endSoundNumber = 1;
@@ -53,11 +56,20 @@ Config cfg;
 
 //Menü lista
 const char* menuItems[] = {
-    "FREKVENCIA",
-    "IDO",
-    "MOD",
-    "KALIBRACIO",
-    "INFO"
+    "MECCS HOSSZA",
+    "KEZD.KESLELTETES",
+    "HANG FREKVENCIA",
+    "HANG HOSSZ",
+    "HANG IDOKOZ",
+    "START FREKVENCIA",
+    "START HOSSZ",
+    "START SZAM",
+    "KOZEP FREKVENCIA",
+    "KOZEP HOSSZ",
+    "KOZEP SZAM",
+    "VEG FREKVENCIA",
+    "VEG HOSSZ",
+    "VEG SZAM"
 };
 
 //Menü hossza
