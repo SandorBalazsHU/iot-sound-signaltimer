@@ -23,7 +23,7 @@ int  currentTime = 0;
 
 //Debouncing időzítő
 unsigned long lastDebounceTime = 0;
-const unsigned long debounceTime = 150;
+const unsigned long debounceTime = 180;
 
 //Fő időzítő
 unsigned long lastMainTime = 0;
@@ -308,27 +308,29 @@ void screen_4_are_you_shure(){
     resetButtons();
 }
 
+//Hang frekvencia beállítás
+void screen_5_sound_freq_set(){
+
+}
+
+typedef void ScreenFunction(void);
+
+ScreenFunction *screenHandlers[] = {
+    screen_0_start,
+    screen_1_running,
+    screen_2_pause,
+    screen_3_menu,
+    screen_4_are_you_shure
+    // és majd jöhet szépen a többi
+};
+
+
 //Képernyő kezelő
 void screenHandler() {
-  switch (currentScreen) {
-      case 0:
-        screen_0_start();
-        break;
-      case 1:
-        screen_1_running();
-        break;
-      case 2:
-        screen_2_pause();
-        break;
-      case 3:
-        screen_3_menu();
-        break;
-      case 4:
-        screen_4_are_you_shure();
-        break;
-      default:
-        // statements
-        break;
+    if (currentScreen < sizeof(screenHandlers)/sizeof(screenHandlers[0])) {
+        screenHandlers[currentScreen]();
+    } else {
+        screen_0_start();  //Érvénytelen képernyő ID esetére.
     }
 }
 
