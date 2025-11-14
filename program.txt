@@ -2,23 +2,36 @@
 ################
 ################
 
+-->misc
+################
+  EEPROM ELSO   
+     IRAS       
+ EEPROM MEMORIA 
+   KIOLVASVA    
+
 -->Start képernyő:
 ################
 -MECCS IDOZITO!-
-     START?     
+MENU       START
 
 -->Főképrnyő:
 ################
-->FELIDOIG: 0000
-->VEGEIG:   0000
+FEL:000 VEG:0000
+KILEPES   SZUNET
 
 -->Szünet menü:
 ################
 ----SZUNETEL----
+VEG:0000  VISSZA
+
+-->Biztosan kilépsz?
+################
+BIZTOS  KILEPSZ?
+IGEN         NEM
 
 -->Menü:
 ################
-------MENU------
+VISSZA FEL LE BE
 FREKVENCIA      
 
 KILEPES

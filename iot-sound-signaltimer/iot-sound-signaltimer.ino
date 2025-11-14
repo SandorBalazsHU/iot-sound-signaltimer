@@ -124,10 +124,9 @@ void beep(int pin, int freq, int duration, int repeat) {
   }
 }
 
-void printLcdInt(int x, int y, int value) {
-  char buf[5]; // 4 karakter + lezáró null
-  sprintf(buf, "%04d", value); // 4 széles leading null-val
-  lcd.setCursor(x, y);
+void printLcdInt(const char* pattern, int value) {
+  char buf[16]; // 4 karakter + lezáró null
+  sprintf(buf, pattern, value); // 4 széles leading null-val
   lcd.print(buf);
 }
 
@@ -148,8 +147,7 @@ void screen_0_start(){
   lcd.setCursor(0,0);
   lcd.print("-MECCS IDOZITO!-");
   lcd.setCursor(0,1);
-  lcd.print("     START?     ");
-  lcd.setCursor(0,0);
+  lcd.print("MENU       START");
 
   readButtons();
   //Időzítő indítás
@@ -162,18 +160,22 @@ void screen_0_start(){
   if(menuPressed) {
     currentScreen = 3;
   }
+  /*//DEBUG SOUND
+  if(upPressed) {
+    beep(8, 1100, 1000, 1);
+  }*/
   resetButtons();
 }
 
 //Időzítő képernyő
 void screen_1_running(){
     lcd.setCursor(0,0);
-    lcd.print("->FELIDOIG: 0000");
-    printLcdInt(12,0,currentTime);
+    lcd.print("FEL:");
+    printLcdInt("%03d", currentTime);
+    lcd.print(" VEG:");
+    printLcdInt("%04d", currentTime);
     lcd.setCursor(0,1);
-    lcd.print("->VEGEIG:   0000");
-     printLcdInt(12,1,currentTime);
-    lcd.setCursor(0,0);
+    lcd.print("KILEPES   SZUNET");
 
     readButtons();
     //Szünet
@@ -183,9 +185,8 @@ void screen_1_running(){
     }
     //Kilépés
     if(menuPressed) {
-      currentScreen = 0;
+      currentScreen = 4;
       timerRunning = false;
-      timerReset();
     }
     resetButtons();
 }
@@ -194,7 +195,10 @@ void screen_1_running(){
 void screen_2_pause(){
     lcd.setCursor(0,0);
     lcd.print("----SZUNETEL----");
-    lcd.setCursor(0,0);
+    lcd.setCursor(0,1);
+    lcd.print(" VEG:");
+    printLcdInt("%04d", currentTime);
+    lcd.print(" VISSZA");
 
     readButtons();
     //Kilépés
@@ -209,15 +213,37 @@ void screen_2_pause(){
 void screen_3_menu(){
     timerRunning = false;
     lcd.setCursor(0,0);
-    lcd.print("------MENU------");
+    lcd.print("VISSZA FEL LE BE");
     lcd.setCursor(0,1);
     lcd.print("FREKVENCIA      ");
+
+    readButtons();
+    //Kilépés
+    if(menuPressed) {
+      currentScreen = 0;
+    }
+    resetButtons();
+}
+
+//Kilépés képernyő
+void screen_4_are_you_shure(){
+    lcd.setCursor(0,0);
+    lcd.print("BIZTOS  KILEPSZ?");
+    lcd.setCursor(0,1);
+    lcd.print("IGEN         NEM");
     lcd.setCursor(0,0);
 
     readButtons();
     //Kilépés
     if(menuPressed) {
       currentScreen = 0;
+      timerRunning = false;
+      timerReset();
+    }
+    //Vissza
+    if(setPressed) {
+      currentScreen = 1;
+      timerRunning = true;
     }
     resetButtons();
 }
@@ -236,6 +262,9 @@ void screenHandler() {
         break;
       case 3:
         screen_3_menu();
+        break;
+      case 4:
+        screen_4_are_you_shure();
         break;
       default:
         // statements
