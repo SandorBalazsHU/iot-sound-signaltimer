@@ -47,8 +47,24 @@ struct Config {
   int startDelay = 2;
 };
 
+//Konfigurációs változók
 Config def_cfg;
 Config cfg;
+
+//Menü lista
+const char* menuItems[] = {
+    "FREKVENCIA",
+    "IDO",
+    "MOD",
+    "KALIBRACIO",
+    "INFO"
+};
+
+//Menü hossza
+const uint8_t menuCount = sizeof(menuItems) / sizeof(menuItems[0]);
+
+//Aktuális menüpont
+int8_t menuIndex = 0;
 
 //Állapotváltozók betöltése
 void loadConfig(){
@@ -210,18 +226,50 @@ void screen_2_pause(){
 }
 
 //Menü képernyő
-void screen_3_menu(){
+void screen_3_menu() {
     timerRunning = false;
-    lcd.setCursor(0,0);
+
+    // Felső sor: statikus felirat
+    lcd.setCursor(0, 0);
     lcd.print("VISSZA FEL LE BE");
-    lcd.setCursor(0,1);
-    lcd.print("FREKVENCIA      ");
+
+    // Második sor: aktuális menüpont
+    lcd.setCursor(0, 1);
+    lcd.print(menuItems[menuIndex]);
+    lcd.print("                ");  // maradék törlése
 
     readButtons();
-    //Kilépés
-    if(menuPressed) {
-      currentScreen = 0;
+
+    // Kilépés gomb
+    if (menuPressed) {
+        currentScreen = 0;
+        resetButtons();
+        return;
     }
+
+    // FEL gomb – csökkentjük az indexet
+    if (upPressed) {
+        menuIndex--;
+        if (menuIndex < 0) menuIndex = menuCount - 1; // körbeforgatás
+        resetButtons();
+        return;
+    }
+
+    // LE gomb – növeljük az indexet
+    if (downPressed) {
+        menuIndex++;
+        if (menuIndex >= menuCount) menuIndex = 0; // körbeforgatás
+        resetButtons();
+        return;
+    }
+
+    // BE (set) – belépés
+    if (setPressed) {
+        currentScreen = menuIndex + 4;
+        resetButtons();
+        return;
+    }
+
     resetButtons();
 }
 
