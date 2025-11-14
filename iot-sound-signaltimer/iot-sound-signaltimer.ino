@@ -16,19 +16,18 @@ bool upPressed    = false;
 bool downPressed  = false;
 bool setPressed   = false;
 char currentScreen = 0;
-char tempCurrentScreen = 0;
 bool timerRunning = false;
-char lastPressedKey = 0;
 int  currentTime = 0;
 int  currentHalfTime = 0;
 bool eventRunning = false;
 bool middleEventTriggered = false;
 bool startEventTriggered = false;
+bool endEventTriggered = false;
 int lastSoundTime = -1;
 
 //Debouncing időzítő
 unsigned long lastDebounceTime = 0;
-const unsigned long debounceTime = 180;
+const unsigned long debounceTime = 170;
 
 //Fő időzítő
 unsigned long lastSecondTime = 0;
@@ -40,18 +39,18 @@ bool secondMarker = true;
 #define SIGNATURE_VALUE 42
 struct Config {
   uint8_t signature = SIGNATURE_VALUE;
-  int soundFreq = 1100;
-  int soundLength = 800;
+  int soundFreq = 500;
+  int soundLength = 500;
   int soundInterval = 2;
-  int startSoundFreq = 800;
+  int startSoundFreq = 250;
   int startSoundLength = 2000;
-  int startSoundNumber = 1;
-  int endSoundFreq = 800;
+  int startSoundNumber = 2;
+  int endSoundFreq = 250;
   int endSoundLength = 2000;
-  int endSoundNumber = 1;
-  int middleSoundFreq = 1500;
-  int middleSoundLenght = 1000;
-  int middleSoundNumber = 2;
+  int endSoundNumber = 2;
+  int middleSoundFreq = 250;
+  int middleSoundLenght = 2000;
+  int middleSoundNumber = 1;
   int fullLength = 60;
   int startDelay = 2;
 };
@@ -79,7 +78,7 @@ const char* menuItems[] = {
 };
 
 //Főképernyők száma
-#define MAIN_SCREEN_NUMBER 5
+#define MAIN_SCREEN_NUMBER 6
 
 //Menü hossza
 const uint8_t menuCount = sizeof(menuItems) / sizeof(menuItems[0]);
@@ -165,7 +164,7 @@ void beep(int pin, int freq, int duration, int repeat) {
     tone(pin, freq);           // hang indítása adott frekvencián
     delay(duration);           // hang ideje
     noTone(pin);               // leállítás
-    delay(10);                // kis szünet az ismétlések között
+    delay(200);                // kis szünet az ismétlések között
   }
 }
 
@@ -176,10 +175,14 @@ void printLcdInt(const char* pattern, int value) {
 }
 
 void timerReset(){
-  currentTime = cfg.fullLength + cfg.startDelay;
-  currentHalfTime = cfg.fullLength / 2;
   timerRunning = false;
+  currentTime = 0;
+  currentHalfTime = 0;
   eventRunning = false;
+  middleEventTriggered = false;
+  startEventTriggered = false;
+  endEventTriggered = false;
+  lastSoundTime = -1;
 }
 
 void timerPause(){
@@ -188,6 +191,8 @@ void timerPause(){
 
 void timerContinue(){
   timerRunning = true;
+  lastMinuteTime = millis();
+  lastSecondTime = millis();
 }
 
 void timerStart(){
@@ -211,36 +216,38 @@ void updateTimer() {
     }
 
     // Percenként csökkentjük az időt
-    if (now - lastMinuteTime >= 60000) {
-        lastMinuteTime += 60000;
-        if (currentTime > 0) currentTime--;
+    if (now - lastMinuteTime >= 10000) {
+        lastMinuteTime += 10000;
+        currentTime--;
         if (eventRunning && currentHalfTime > 0) currentHalfTime--;
     }
+    upddateTimeEvents();
+
 }
 
 void soundEvent(){
-
+  beep(BUZZER_PIN, cfg.soundFreq, cfg.soundLength, 1);
 }
 
 void startEvent(){
-
+  beep(BUZZER_PIN, cfg.startSoundFreq, cfg.startSoundLength, cfg.startSoundNumber);
 }
 
 void middleEvent(){
-
+  beep(BUZZER_PIN, cfg.middleSoundFreq, cfg.middleSoundLenght, cfg.middleSoundNumber);
 }
 
 void endEvent(){
-
+  beep(BUZZER_PIN, cfg.endSoundFreq, cfg.endSoundLength, cfg.endSoundNumber);
 }
 
 //Eseménykezelő
-void eventHandler() {
-    if(currentTime <= 0) return;
+void upddateTimeEvents() {
+    //if(currentTime <= 0) return;
 
     // Ellenőrizzük, hogy elindulhatnak-e az események (start delay lejárt)
     if (!eventRunning) {
-        if (currentTime <= cfg.fullLength - cfg.startDelay) {
+        if (currentTime <= cfg.fullLength) {
             eventRunning = true;
             startEvent();              // Start esemény a start delay lejártakor
             startEventTriggered = true;
@@ -251,23 +258,25 @@ void eventHandler() {
     }
 
     // Félidő esemény
-    int halfTime = cfg.fullLength / 2;
-    if (!middleEventTriggered && currentTime <= halfTime) {
-        middleEvent();
-        middleEventTriggered = true;
+    if (!middleEventTriggered && currentHalfTime <= 0) {
+      middleEvent();
+      middleEventTriggered = true;
+      return;
     }
 
     // Vége esemény
-    if (currentTime <= 0) {
-        endEvent();
-        eventRunning = false; // Leállítjuk az események futását
-        return;
+    if (!endEventTriggered && currentTime <= 0) {
+      endEvent();
+      eventRunning = false; // Leállítjuk az események futását
+      currentScreen = 5;
+      endEventTriggered = true;
+      timerReset();
+      return;
     }
 
     // Hang események (soundInterval percenként), de félidőnél ne fusson
     if (cfg.soundInterval > 0) {
-        if ((lastSoundTime - currentTime) >= cfg.soundInterval &&
-            currentTime != halfTime) {
+        if ((lastSoundTime - currentTime) >= cfg.soundInterval) {
             soundEvent();
             lastSoundTime = currentTime;
         }
@@ -299,6 +308,12 @@ void screen_0_start(){
 
 //Időzítő képernyő
 void screen_1_running(){
+    if(endEventTriggered) {
+      currentScreen = 0;
+      timerReset();
+      return;
+    }
+
     lcd.setCursor(0,0);
     lcd.print("FEL:");
     printLcdInt("%03d", currentHalfTime);
@@ -420,9 +435,38 @@ void screen_4_are_you_shure(){
     resetButtons();
 }
 
+//Kilépés képernyő
+void screen_5_end(){
+    lcd.setCursor(0,0);
+    lcd.print("A MECCS VÉGET ÉRT!");
+    lcd.setCursor(0,1);
+    lcd.print("      KILEPES     ");
+    lcd.setCursor(0,0);
+
+    readButtons();
+    //Kilépés
+    if(menuPressed) {
+      currentScreen = 0;
+      timerReset();
+    }
+    if(upPressed) {
+      currentScreen = 0;
+      timerReset();
+    }
+    if(downPressed) {
+      currentScreen = 0;
+      timerReset();
+    }
+    if(setPressed) {
+      currentScreen = 0;
+      timerReset();
+    }
+    resetButtons();
+}
+
 //################
 //Meccs gossza beállítás
-void screen_5_set_fullLength(){
+void screen_6_set_fullLength(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE");
     lcd.setCursor(0,1);
@@ -466,7 +510,8 @@ ScreenFunction *screenHandlers[] = {
     screen_2_pause,
     screen_3_menu,
     screen_4_are_you_shure,
-    screen_5_set_fullLength
+    screen_5_end,
+    screen_6_set_fullLength
 };
 
 
@@ -495,7 +540,6 @@ void setup() {
 //Központi ciklus
 void loop() {
   updateTimer();
-  eventHandler();
   screenHandler();
 
 /*readButtons();
