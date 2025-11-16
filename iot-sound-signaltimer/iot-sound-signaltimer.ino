@@ -160,6 +160,7 @@ void resetButtons() {
 }
 
 void beep(int pin, int freq, int duration, int repeat) {
+  if(freq == 0 || duration == 0 || repeat == 0) return;
   for (int i = 0; i < repeat; i++) {
     tone(pin, freq);           // hang indítása adott frekvencián
     delay(duration);           // hang ideje
@@ -169,9 +170,14 @@ void beep(int pin, int freq, int duration, int repeat) {
 }
 
 void printLcdInt(const char* pattern, int value) {
-  char buf[16]; // 4 karakter + lezáró null
-  sprintf(buf, pattern, value); // 4 széles leading null-val
-  lcd.print(buf);
+  if(value != 0) {
+    char buf[16]; // 4 karakter + lezáró null
+    sprintf(buf, pattern, value); // 4 széles leading null-val
+    lcd.print(buf);
+  }else{
+    lcd.print("-KI-");
+  }
+  
 }
 
 void timerReset(){
@@ -438,9 +444,9 @@ void screen_4_are_you_shure(){
 //Kilépés képernyő
 void screen_5_end(){
     lcd.setCursor(0,0);
-    lcd.print("A MECCS VÉGET ÉRT!");
+    lcd.print("A MECCSNEK VEGE!");
     lcd.setCursor(0,1);
-    lcd.print("      KILEPES     ");
+    lcd.print("    KILEPES     ");
     lcd.setCursor(0,0);
 
     readButtons();
@@ -468,7 +474,7 @@ void screen_5_end(){
 //Meccs gossza beállítás
 void screen_6_set_fullLength(){
     lcd.setCursor(0,0);
-    lcd.print("VISSZA FEL LE BE");
+    lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
     lcd.print("HOSSZ: ");
     printLcdInt("%04d", cfg.fullLength);
@@ -502,6 +508,43 @@ void screen_6_set_fullLength(){
     resetButtons();
 }
 
+//KEZD.KESLELTETES beállítás
+void screen_7_set_startDelay(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("HOSSZ: ");
+    printLcdInt("%04d", cfg.startDelay);
+    lcd.print(" PERC");
+
+    readButtons();
+
+    // FEL gomb
+    if (upPressed) {
+        if (cfg.startDelay+1 < 9999) cfg.startDelay += 1;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (downPressed) {
+        if (cfg.startDelay-1 >= 0) cfg.startDelay -= 1;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(setPressed) {
+      currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(menuPressed) {
+      currentScreen = 3;
+    }
+    resetButtons();
+}
+
 typedef void ScreenFunction(void);
 
 ScreenFunction *screenHandlers[] = {
@@ -511,7 +554,8 @@ ScreenFunction *screenHandlers[] = {
     screen_3_menu,
     screen_4_are_you_shure,
     screen_5_end,
-    screen_6_set_fullLength
+    screen_6_set_fullLength,
+    screen_7_set_startDelay
 };
 
 
