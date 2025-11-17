@@ -21,7 +21,8 @@ ScreenFunction *screenHandlers[] = {
     screen_17_set_middleSoundNumber,
     screen_18_set_endSoundFreq,
     screen_19_set_endSoundLength,
-    screen_20_set_endSoundNumber
+    screen_20_set_endSoundNumber,
+    screen_21_reset_default
 };
 
 //Képernyő kezelő
@@ -724,6 +725,27 @@ void screen_20_set_endSoundNumber(){
     //Mentés
     if(status.setPressed) {
       status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//Alap beállítások visszaállítása.
+void screen_21_reset_default(){
+    lcd.setCursor(0,0);
+    lcd.print("  GYARI  RESET  "); 
+    lcd.setCursor(0,1);
+    lcd.print("VISSZA     RESET");
+    readButtons();
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      status.cfg = status.def_cfg;
       saveConfig();
     }
     //Vissza

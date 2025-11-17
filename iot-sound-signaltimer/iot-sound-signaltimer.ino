@@ -21,15 +21,12 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 //Aktuális státusz tároló
 StatusStore status;
 
-//Alapértelmezett konfiguráció
-Config def_cfg;
-
 //Állapotváltozók betöltése
 void loadConfig(){
   EEPROM.get(EEPROM_ADDR, status.cfg);
 
-  if(status.cfg.signature != def_cfg.signature) {
-    EEPROM.put(EEPROM_ADDR, def_cfg);
+  if(status.cfg.signature != status.def_cfg.signature) {
+    EEPROM.put(EEPROM_ADDR, status.def_cfg);
     lcd.setCursor(0,0);
     lcd.print("  EEPROM ELSO   ");
     lcd.setCursor(0,1);

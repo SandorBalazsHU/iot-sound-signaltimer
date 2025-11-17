@@ -3,20 +3,21 @@
 
 //Menü lista
 const char* menuItems[] = {
-    "MECCS HOSSZA",
-    "KEZD.KESLELTETES",
-    "HANG FREKVENCIA",
-    "HANG HOSSZ",
-    "HANG IDOKOZ",
-    "START FREKVENCIA",
-    "START HOSSZ",
-    "START SZAM",
-    "KOZEP FREKVENCIA",
-    "KOZEP HOSSZ",
-    "KOZEP SZAM",
-    "VEG FREKVENCIA",
-    "VEG HOSSZ",
-    "VEG SZAM"
+    ">MECCS HOSSZA",
+    ">KEZDKESLELTETES",
+    ">HANG FREKVENCIA",
+    ">HANG HOSSZ",
+    ">HANG IDOKOZ",
+    ">START FREKVENCIA",
+    ">START HOSSZ",
+    ">START SZAM",
+    ">KOZEP FREKVENCIA",
+    ">KOZEP HOSSZ",
+    ">KOZEP SZAM",
+    ">VEG FREKVENCIA",
+    ">VEG HOSSZ",
+    ">VEG SZAM",
+    ">GYARI RESET"
 };
 
 //Menü hossza

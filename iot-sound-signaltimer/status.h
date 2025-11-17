@@ -34,6 +34,9 @@ struct StatusStore {
   //Konfigurációs változók
   Config cfg;
 
+  //Alapértelmezett konfiguráció
+  Config def_cfg;
+
   //Aktuális menüpont
   int8_t menuIndex = 0;
 };

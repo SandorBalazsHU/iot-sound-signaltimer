@@ -87,4 +87,7 @@ void screen_19_set_endSoundLength();
 //VEG SZAM beállítás
 void screen_20_set_endSoundNumber();
 
+//Alap beállítások visszaállítása.
+void screen_21_reset_default();
+
 #endif
