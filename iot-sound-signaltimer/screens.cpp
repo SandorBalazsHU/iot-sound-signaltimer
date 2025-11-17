@@ -11,7 +11,17 @@ ScreenFunction *screenHandlers[] = {
     screen_6_set_fullLength,
     screen_7_set_startDelay,
     screen_8_set_soundFreq,
-    screen_9_set_soundLength
+    screen_9_set_soundLength,
+    screen_10_set_soundInterval,
+    screen_11_set_startSoundFreq,
+    screen_12_set_startSoundLength,
+    screen_14_set_startSoundNumber,
+    screen_15_set_middleSoundFreq,
+    screen_16_set_middleSoundLenght,
+    screen_17_set_middleSoundNumber,
+    screen_18_set_endSoundFreq,
+    screen_19_set_endSoundLength,
+    screen_20_set_endSoundNumber
 };
 
 //Képernyő kezelő
@@ -337,6 +347,376 @@ void screen_9_set_soundLength(){
     // LE gomb
     if (status.downPressed) {
         if (status.cfg.soundLength-10 >= 0) status.cfg.soundLength -= 10;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//HANG IDOKOZ beállítás
+void screen_10_set_soundInterval(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("INTERV:");
+    printLcdInt("%04d", status.cfg.soundInterval, false);
+    lcd.print(" PERC");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.soundInterval+1 < 9999) status.cfg.soundInterval += 1;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.soundInterval-1 >= 0) status.cfg.soundInterval -= 1;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//START FREKVENCIA beállítás
+void screen_11_set_startSoundFreq(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("S.FREKV: ");
+    printLcdInt("%04d", status.cfg.startSoundFreq, false);
+    lcd.print(" HZ");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.startSoundFreq+10 < 9999) status.cfg.startSoundFreq += 10;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.startSoundFreq-10 >= 0) status.cfg.startSoundFreq -= 10;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//START HOSSZ beállítás
+void screen_12_set_startSoundLength(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("S.HOSSZ: ");
+    printLcdInt("%04d", status.cfg.startSoundLength, false);
+    lcd.print(" ms");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.startSoundLength+10 < 9999) status.cfg.startSoundLength += 10;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.startSoundLength-10 >= 0) status.cfg.startSoundLength -= 10;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//START SZAM beállítás
+void screen_14_set_startSoundNumber(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("START DB:");
+    printLcdInt("%04d", status.cfg.startSoundNumber, false);
+    lcd.print(" DB");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.startSoundNumber+1 < 9999) status.cfg.startSoundNumber += 1;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.startSoundNumber-1 >= 0) status.cfg.startSoundNumber -= 1;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//KOZEP FREKVENCIA beállítás
+void screen_15_set_middleSoundFreq(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("K.FREKV: ");
+    printLcdInt("%04d", status.cfg.middleSoundFreq, false);
+    lcd.print(" HZ");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.middleSoundFreq+10 < 9999) status.cfg.middleSoundFreq += 10;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.middleSoundFreq-10 >= 0) status.cfg.middleSoundFreq -= 10;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//KOZEP HOSSZ beállítás
+void screen_16_set_middleSoundLenght(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("S.HOSSZ: ");
+    printLcdInt("%04d", status.cfg.middleSoundLenght, false);
+    lcd.print(" ms");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.middleSoundLenght+10 < 9999) status.cfg.middleSoundLenght += 10;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.middleSoundLenght-10 >= 0) status.cfg.middleSoundLenght -= 10;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//KOZEP SZAM beállítás
+void screen_17_set_middleSoundNumber(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("START DB:");
+    printLcdInt("%04d", status.cfg.middleSoundNumber, false);
+    lcd.print(" DB");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.middleSoundNumber+1 < 9999) status.cfg.middleSoundNumber += 1;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.middleSoundNumber-1 >= 0) status.cfg.middleSoundNumber -= 1;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//VEG FREKVENCIA beállítás
+void screen_18_set_endSoundFreq(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("V.FREKV: ");
+    printLcdInt("%04d", status.cfg.middleSoundFreq, false);
+    lcd.print(" HZ");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.endSoundFreq+10 < 9999) status.cfg.endSoundFreq += 10;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.endSoundFreq-10 >= 0) status.cfg.endSoundFreq -= 10;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//VEG HOSSZ beállítás
+void screen_19_set_endSoundLength(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("V.HOSSZ: ");
+    printLcdInt("%04d", status.cfg.endSoundLength, false);
+    lcd.print(" ms");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.endSoundLength+10 < 9999) status.cfg.endSoundLength += 10;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.endSoundLength-10 >= 0) status.cfg.endSoundLength -= 10;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      status.currentScreen = 3;
+      saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//VEG SZAM beállítás
+void screen_20_set_endSoundNumber(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("START DB:");
+    printLcdInt("%04d", status.cfg.endSoundNumber, false);
+    lcd.print(" DB");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.cfg.endSoundNumber+1 < 9999) status.cfg.endSoundNumber += 1;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.cfg.endSoundNumber-1 >= 0) status.cfg.endSoundNumber -= 1;
         resetButtons();
         return;
     }

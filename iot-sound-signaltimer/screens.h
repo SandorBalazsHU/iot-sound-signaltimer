@@ -57,4 +57,34 @@ void screen_8_set_soundFreq();
 //HANG HOSSZ beállítás
 void screen_9_set_soundLength();
 
+//HANG IDOKOZ beállítás
+void screen_10_set_soundInterval();
+
+//START FREKVENCIA beállítás
+void screen_11_set_startSoundFreq();
+
+//START HOSSZ beállítás
+void screen_12_set_startSoundLength();
+
+//START SZAM beállítás
+void screen_14_set_startSoundNumber();
+
+//KOZEP FREKVENCIA beállítás
+void screen_15_set_middleSoundFreq();
+
+//KOZEP HOSSZ beállítás
+void screen_16_set_middleSoundLenght();
+
+//KOZEP SZAM beállítás
+void screen_17_set_middleSoundNumber();
+
+//VEG FREKVENCIA beállítás
+void screen_18_set_endSoundFreq();
+
+//VEG HOSSZ beállítás
+void screen_19_set_endSoundLength();
+
+//VEG SZAM beállítás
+void screen_20_set_endSoundNumber();
+
 #endif
