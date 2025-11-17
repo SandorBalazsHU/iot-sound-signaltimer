@@ -628,7 +628,7 @@ void screen_18_set_endSoundFreq(){
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
     lcd.print("V.FREKV: ");
-    printLcdInt("%04d", status.cfg.middleSoundFreq, false);
+    printLcdInt("%04d", status.cfg.endSoundFreq, false);
     lcd.print(" HZ");
 
     readButtons();

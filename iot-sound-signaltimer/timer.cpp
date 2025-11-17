@@ -48,8 +48,8 @@ void updateTimer() {
     }
 
     // Percenként csökkentjük az időt
-    if (now - status.lastMinuteTime >= 10000) {
-        status.lastMinuteTime += 10000;
+    if (now - status.lastMinuteTime >= 60000) {
+        status.lastMinuteTime += 60000;
         status.currentTime--;
         if (status.eventRunning && status.currentHalfTime > 0) status.currentHalfTime--;
     }
