@@ -1,6 +1,50 @@
 #include "screens.h"
 
-#define MAIN_SCREEN_NUMBER 6
+//Képernyőkezelő lista
+ScreenFunction *screenHandlers[] = {
+    screen_0_start,
+    screen_1_running,
+    screen_2_pause,
+    screen_3_menu,
+    screen_4_are_you_shure,
+    screen_5_end,
+    screen_6_set_fullLength,
+    screen_7_set_startDelay,
+    screen_8_set_soundFreq,
+    screen_9_set_soundLength
+};
+
+//Képernyő kezelő
+void screenHandler() {
+    if (status.currentScreen < sizeof(screenHandlers)/sizeof(screenHandlers[0])) {
+        screenHandlers[status.currentScreen]();
+    } else {
+        screen_0_start();  //Érvénytelen képernyő ID esetére.
+    }
+}
+
+//Kezdőképernyő
+void screen_0_start(){
+  lcd.setCursor(0,0);
+  lcd.print("-MECCS IDOZITO!-");
+  lcd.setCursor(0,1);
+  lcd.print("MENU       START");
+
+  readButtons();
+
+  //Időzítő indítás
+  if(status.setPressed) {
+    status.currentScreen = 1;
+    timerStart();
+  }
+
+  //Menü megnyitás
+  if(status.menuPressed) {
+    status.currentScreen = 3;
+  }
+
+  resetButtons();
+}
 
 //Időzítő képernyő
 void screen_1_running(){
@@ -64,7 +108,7 @@ void screen_2_pause(){
     resetButtons();
 }
 
-//Menü képernyő !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!menuItems!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//Menü képernyő
 void screen_3_menu() {
     // Felső sor: statikus felirat
     lcd.setCursor(0, 0);
@@ -102,7 +146,7 @@ void screen_3_menu() {
 
     // BE (set) – belépés
     if (status.setPressed) {
-        status.currentScreen = MAIN_SCREEN_NUMBER + status.menuIndex;
+        status.currentScreen = mainScreenNumber + status.menuIndex;
         resetButtons();
         return;
     }

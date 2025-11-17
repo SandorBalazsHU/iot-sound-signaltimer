@@ -2,9 +2,11 @@
 #define SCREENS
 
 #include <LiquidCrystal_I2C.h>
+#include "config.h"
 #include "status.h"
 
 //Főprograbeli függvények definíciói.
+void timerStart();
 void timerReset();
 void timerPause();
 void timerContinue();
@@ -14,11 +16,20 @@ void readButtons();
 void resetButtons();
 
 //Globálisok áthívása a főprogramból.
-extern const char* menuItems[];
-extern const uint8_t menuCount;
 extern LiquidCrystal_I2C lcd;
-
 extern StatusStore status;
+
+//Képernyőkezelő lista tároló
+typedef void ScreenFunction(void);
+
+//Képernyőkezelő lista
+extern ScreenFunction *screenHandlers[];
+
+//Képernyő kezelő
+void screenHandler();
+
+//Kezdőképernyő
+void screen_0_start();
 
 //Időzítő képernyő
 void screen_1_running();
