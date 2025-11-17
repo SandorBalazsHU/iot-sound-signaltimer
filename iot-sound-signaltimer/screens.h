@@ -87,4 +87,7 @@ void screen_20_set_endSoundNumber();
 //Alap beállítások visszaállítása.
 void screen_21_reset_default();
 
+//Hang teszter
+void screen_22_set_endSoundFreq();
+
 #endif

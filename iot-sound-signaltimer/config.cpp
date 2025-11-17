@@ -17,7 +17,8 @@ const char* menuItems[] = {
     ">VEG FREKVENCIA",
     ">VEG HOSSZ",
     ">VEG SZAM",
-    ">GYARI RESET"
+    ">GYARI RESET",
+    ">HANG FREK.TESZT"
 };
 
 //Menü hossza

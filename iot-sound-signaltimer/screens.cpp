@@ -1,4 +1,5 @@
 #include "screens.h"
+#include "events.h"
 
 //Képernyőkezelő lista
 ScreenFunction *screenHandlers[] = {
@@ -22,7 +23,8 @@ ScreenFunction *screenHandlers[] = {
     screen_18_set_endSoundFreq,
     screen_19_set_endSoundLength,
     screen_20_set_endSoundNumber,
-    screen_21_reset_default
+    screen_21_reset_default,
+    screen_22_set_endSoundFreq
 };
 
 //Képernyő kezelő
@@ -340,14 +342,14 @@ void screen_9_set_soundLength(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.soundLength+10 < 9999) status.cfg.soundLength += 10;
+        if (status.cfg.soundLength+10 < 9999) status.cfg.soundLength += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.soundLength-10 >= 0) status.cfg.soundLength -= 10;
+        if (status.cfg.soundLength-10 >= 0) status.cfg.soundLength -= 100;
         resetButtons();
         return;
     }
@@ -451,14 +453,14 @@ void screen_12_set_startSoundLength(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.startSoundLength+10 < 9999) status.cfg.startSoundLength += 10;
+        if (status.cfg.startSoundLength+10 < 9999) status.cfg.startSoundLength += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.startSoundLength-10 >= 0) status.cfg.startSoundLength -= 10;
+        if (status.cfg.startSoundLength-10 >= 0) status.cfg.startSoundLength -= 100;
         resetButtons();
         return;
     }
@@ -562,14 +564,14 @@ void screen_16_set_middleSoundLenght(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.middleSoundLenght+10 < 9999) status.cfg.middleSoundLenght += 10;
+        if (status.cfg.middleSoundLenght+10 < 9999) status.cfg.middleSoundLenght += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.middleSoundLenght-10 >= 0) status.cfg.middleSoundLenght -= 10;
+        if (status.cfg.middleSoundLenght-10 >= 0) status.cfg.middleSoundLenght -= 100;
         resetButtons();
         return;
     }
@@ -673,14 +675,14 @@ void screen_19_set_endSoundLength(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.endSoundLength+10 < 9999) status.cfg.endSoundLength += 10;
+        if (status.cfg.endSoundLength+10 < 9999) status.cfg.endSoundLength += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.endSoundLength-10 >= 0) status.cfg.endSoundLength -= 10;
+        if (status.cfg.endSoundLength-10 >= 0) status.cfg.endSoundLength -= 100;
         resetButtons();
         return;
     }
@@ -747,6 +749,42 @@ void screen_21_reset_default(){
       status.currentScreen = 3;
       status.cfg = status.def_cfg;
       saveConfig();
+    }
+    //Vissza
+    if(status.menuPressed) {
+      status.currentScreen = 3;
+    }
+    resetButtons();
+}
+
+//Hang teszter
+void screen_22_set_endSoundFreq(){
+    lcd.setCursor(0,0);
+    lcd.print("VISSZA FEL LE BE"); 
+    lcd.setCursor(0,1);
+    lcd.print("TESZT F: ");
+    printLcdInt("%04d", status.testSoundFreq, false);
+    lcd.print(" HZ");
+
+    readButtons();
+
+    // FEL gomb
+    if (status.upPressed) {
+        if (status.testSoundFreq+10 < 9999) status.testSoundFreq += 10;
+        resetButtons();
+        return;
+    }
+
+    // LE gomb
+    if (status.downPressed) {
+        if (status.testSoundFreq-10 >= 40) status.testSoundFreq -= 10;
+        resetButtons();
+        return;
+    }
+
+    //Mentés
+    if(status.setPressed) {
+      beep(speakerPin, status.testSoundFreq, 1000, 1);
     }
     //Vissza
     if(status.menuPressed) {

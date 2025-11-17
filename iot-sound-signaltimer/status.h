@@ -21,6 +21,7 @@ struct StatusStore {
   bool startEventTriggered = false;
   bool endEventTriggered = false;
   int lastSoundTime = -1;
+  int testSoundFreq = 500;
 
   //Debouncing időzítő
   unsigned long lastDebounceTime = 0;
