@@ -553,7 +553,7 @@ void screen_16_set_middleSoundLenght(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
-    lcd.print("S.HOSSZ: ");
+    lcd.print("K.HOSSZ: ");
     printLcdInt("%04d", status.cfg.middleSoundLenght, false);
     lcd.print(" ms");
 
@@ -590,7 +590,7 @@ void screen_17_set_middleSoundNumber(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
-    lcd.print("START DB:");
+    lcd.print("KOZEP DB:");
     printLcdInt("%04d", status.cfg.middleSoundNumber, false);
     lcd.print(" DB");
 
@@ -701,7 +701,7 @@ void screen_20_set_endSoundNumber(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
-    lcd.print("START DB:");
+    lcd.print("VEG DB:  ");
     printLcdInt("%04d", status.cfg.endSoundNumber, false);
     lcd.print(" DB");
 
