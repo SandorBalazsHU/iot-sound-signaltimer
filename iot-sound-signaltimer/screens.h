@@ -4,14 +4,11 @@
 #include <LiquidCrystal_I2C.h>
 #include "config.h"
 #include "status.h"
+#include "timer.h"
 
 //Főprograbeli függvények definíciói.
-void timerStart();
-void timerReset();
-void timerPause();
-void timerContinue();
-void saveConfig();
 void printLcdInt(const char* pattern, int value, bool showZero = true);
+void saveConfig();
 void readButtons();
 void resetButtons();
 
