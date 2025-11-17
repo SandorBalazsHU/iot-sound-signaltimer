@@ -64,8 +64,10 @@ void buttonSetup() {
 
 //Gombok leolvasása
 void readButtons() {
-  // ha bármelyik már aktív, nem vizsgálunk újat
-  if (status.menuPressed || status.upPressed || status.downPressed || status.setPressed) return;
+  unsigned long now = millis();
+
+  // ha még nem telt el a debounceTime az utolsó gombnyomás óta, nem csinálunk semmit
+  if (now - status.lastDebounceTime < status.debounceTime) return;
 
   bool menuState = !digitalRead(BUTTON_MENU_PIN);
   bool upState   = !digitalRead(BUTTON_UP_PIN);
@@ -77,13 +79,22 @@ void readButtons() {
   // ha egynél több gomb aktív, hibás bemenet
   if (pressedCount > 1) return;
 
-  unsigned long now = millis();
-  if(now - status.lastDebounceTime > status.debounceTime){
+  // ha van egy nyomott gomb, aktiváljuk a státuszt és frissítjük az időzítőt
+  if (menuState) {
+    status.menuPressed = true;
     status.lastDebounceTime = now;
-    if (menuState) status.menuPressed = true;
-    else if (upState) status.upPressed = true;
-    else if (downState) status.downPressed = true;
-    else if (setState) status.setPressed = true;
+  } 
+  else if (upState) {
+    status.upPressed = true;
+    status.lastDebounceTime = now;
+  } 
+  else if (downState) {
+    status.downPressed = true;
+    status.lastDebounceTime = now;
+  } 
+  else if (setState) {
+    status.setPressed = true;
+    status.lastDebounceTime = now;
   }
 }
 

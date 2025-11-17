@@ -24,7 +24,7 @@ struct StatusStore {
 
   //Debouncing időzítő
   unsigned long lastDebounceTime = 0;
-  const unsigned long debounceTime = 160;
+  const unsigned long debounceTime = 300;
 
   //Fő időzítő
   unsigned long lastSecondTime = 0;
