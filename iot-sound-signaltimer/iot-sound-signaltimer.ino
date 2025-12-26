@@ -5,6 +5,7 @@
 #include "status.h"
 #include "screens.h"
 #include "timer.h"
+#include "battery.h"
 
 //Preprocesszor makrók
 #define BUTTON_MENU_PIN   2
@@ -117,10 +118,25 @@ void printLcdInt(const char* pattern, int value, bool showZero = true) {
     lcd.print(buf);
 }
 
+// Fix széles float írása LCD-re
+void printLcdFloat(const char* pattern, float value, bool showZero = true) {
+    if (value == 0.0f && !showZero) {
+        lcd.print("-KI-");
+        return;
+    }
+
+    // 5 széles, 2 tizedes (a pattern-től függetlenül)
+    // Ha a pattern-et is szeretnéd feldolgozni, azt is megoldom külön.
+    char buf[16];
+    dtostrf(value, 5, 2, buf);  // width=5, precision=2
+    lcd.print(buf);
+}
+
 //Rendszer előkészítése
 void setup() {
   delay(200);
   Serial.begin(9600);
+  analogReference(DEFAULT); // AVcc = 5V
   buttonSetup();
   lcd.init();
   lcd.backlight();
@@ -132,6 +148,7 @@ void setup() {
 
 //Központi ciklus
 void loop() {
+  batteryGuard();
   screenHandler();
   updateTimer();
 }

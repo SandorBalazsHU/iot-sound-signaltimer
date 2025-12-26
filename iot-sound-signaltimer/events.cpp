@@ -2,7 +2,7 @@
 
 //Hang kezelő
 void beep(int pin, int freq, int duration, int repeat) {
-  if(freq == 0 || duration == 0 || repeat == 0) return;
+  if(freq <= 0 || duration <= 0 || repeat == 0) return;
   for (int i = 0; i < repeat; i++) {
     tone(pin, freq);           // hang indítása adott frekvencián
     delay(duration);           // hang ideje

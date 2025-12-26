@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "config.h"
 
-const int mainScreenNumber = 6;
+const int mainScreenNumber = 7;
 
 //Globális állapotváltozók
 struct StatusStore {

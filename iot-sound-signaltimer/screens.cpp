@@ -1,5 +1,6 @@
 #include "screens.h"
 #include "events.h"
+#include "battery.h"
 
 //Képernyőkezelő lista
 ScreenFunction *screenHandlers[] = {
@@ -9,22 +10,24 @@ ScreenFunction *screenHandlers[] = {
     screen_3_menu,
     screen_4_are_you_shure,
     screen_5_end,
-    screen_6_set_fullLength,
-    screen_7_set_startDelay,
-    screen_8_set_soundFreq,
-    screen_9_set_soundLength,
-    screen_10_set_soundInterval,
-    screen_11_set_startSoundFreq,
-    screen_12_set_startSoundLength,
-    screen_14_set_startSoundNumber,
-    screen_15_set_middleSoundFreq,
-    screen_16_set_middleSoundLenght,
-    screen_17_set_middleSoundNumber,
-    screen_18_set_endSoundFreq,
-    screen_19_set_endSoundLength,
-    screen_20_set_endSoundNumber,
-    screen_21_reset_default,
-    screen_22_set_endSoundFreq
+    screen_6_battery_low,
+    screen_7_set_fullLength,
+    screen_8_set_startDelay,
+    screen_9_set_soundFreq,
+    screen_10_set_soundLength,
+    screen_11_set_soundInterval,
+    screen_12_set_startSoundFreq,
+    screen_14_set_startSoundLength,
+    screen_15_set_startSoundNumber,
+    screen_16_set_middleSoundFreq,
+    screen_17_set_middleSoundLenght,
+    screen_18_set_middleSoundNumber,
+    screen_19_set_endSoundFreq,
+    screen_20_set_endSoundLength,
+    screen_21_set_endSoundNumber,
+    screen_22_reset_default,
+    screen_23_soundFreqTest,
+    screen_24_battery_status
 };
 
 //Képernyő kezelő
@@ -67,11 +70,17 @@ void screen_1_running(){
       return;
     }
 
+    float v = measureBatteryVoltage(ADC_PIN, 10); // átlag 10 mérés
+    float soc = voltageToSoc(v);
+
     lcd.setCursor(0,0);
-    lcd.print("FEL:");
+    lcd.print("F:");
     printLcdInt("%03d",  status.currentHalfTime);
-    lcd.print(" VEG:");
-    printLcdInt("%04d",  status.currentTime);
+    lcd.print(" V:");
+    printLcdInt("%03d",  status.currentTime);
+    lcd.print(" ");
+    printLcdInt("%03d",  soc);
+    lcd.print("%");
     lcd.setCursor(0,1);
     lcd.print("KILEPES "); 
     if(status.secondMarker){
@@ -217,9 +226,31 @@ void screen_5_end(){
     resetButtons();
 }
 
-//################
+//Akkumulátor alacsomy képernyő
+void screen_6_battery_low(){
+  float v = measureBatteryVoltage(ADC_PIN, 10); // átlag 10 mérés
+  float soc = voltageToSoc(v);
+
+    lcd.setCursor(0,0);
+    lcd.print("AKKU:"); 
+    printLcdFloat("%05.2f", v, true);
+    lcd.print(" "); 
+    printLcdInt("%03d", soc, true);
+    lcd.print("%"); 
+    lcd.setCursor(0,1);
+    lcd.print(" LEMERULT UJRA? "); 
+
+    readButtons();
+    //Vissza
+    if(status.menuPressed || status.setPressed || status.downPressed || status.upPressed) {
+      status.currentScreen = 0;
+      timerReset();
+    }
+    resetButtons();
+}
+
 //Meccs gossza beállítás
-void screen_6_set_fullLength(){
+void screen_7_set_fullLength(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -256,7 +287,7 @@ void screen_6_set_fullLength(){
 }
 
 //KEZD.KESLELTETES beállítás
-void screen_7_set_startDelay(){
+void screen_8_set_startDelay(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -293,7 +324,7 @@ void screen_7_set_startDelay(){
 }
 
 //HANG FREKVENCIA beállítás
-void screen_8_set_soundFreq(){
+void screen_9_set_soundFreq(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -305,14 +336,14 @@ void screen_8_set_soundFreq(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.soundFreq+10 < 9999) status.cfg.soundFreq += 10;
+        if (status.cfg.soundFreq+100 < 9999) status.cfg.soundFreq += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.soundFreq-10 >= 0) status.cfg.soundFreq -= 10;
+        if (status.cfg.soundFreq-100 >= 0) status.cfg.soundFreq -= 100;
         resetButtons();
         return;
     }
@@ -330,7 +361,7 @@ void screen_8_set_soundFreq(){
 }
 
 //HANG HOSSZ beállítás
-void screen_9_set_soundLength(){
+void screen_10_set_soundLength(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -342,14 +373,14 @@ void screen_9_set_soundLength(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.soundLength+10 < 9999) status.cfg.soundLength += 100;
+        if (status.cfg.soundLength+100 < 9999) status.cfg.soundLength += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.soundLength-10 >= 0) status.cfg.soundLength -= 100;
+        if (status.cfg.soundLength-100 >= 0) status.cfg.soundLength -= 100;
         resetButtons();
         return;
     }
@@ -367,7 +398,7 @@ void screen_9_set_soundLength(){
 }
 
 //HANG IDOKOZ beállítás
-void screen_10_set_soundInterval(){
+void screen_11_set_soundInterval(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -404,7 +435,7 @@ void screen_10_set_soundInterval(){
 }
 
 //START FREKVENCIA beállítás
-void screen_11_set_startSoundFreq(){
+void screen_12_set_startSoundFreq(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -416,14 +447,14 @@ void screen_11_set_startSoundFreq(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.startSoundFreq+10 < 9999) status.cfg.startSoundFreq += 10;
+        if (status.cfg.startSoundFreq+100 < 9999) status.cfg.startSoundFreq += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.startSoundFreq-10 >= 0) status.cfg.startSoundFreq -= 10;
+        if (status.cfg.startSoundFreq-100 >= 0) status.cfg.startSoundFreq -= 100;
         resetButtons();
         return;
     }
@@ -441,7 +472,7 @@ void screen_11_set_startSoundFreq(){
 }
 
 //START HOSSZ beállítás
-void screen_12_set_startSoundLength(){
+void screen_14_set_startSoundLength(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -453,14 +484,14 @@ void screen_12_set_startSoundLength(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.startSoundLength+10 < 9999) status.cfg.startSoundLength += 100;
+        if (status.cfg.startSoundLength+100 < 9999) status.cfg.startSoundLength += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.startSoundLength-10 >= 0) status.cfg.startSoundLength -= 100;
+        if (status.cfg.startSoundLength-100 >= 0) status.cfg.startSoundLength -= 100;
         resetButtons();
         return;
     }
@@ -478,7 +509,7 @@ void screen_12_set_startSoundLength(){
 }
 
 //START SZAM beállítás
-void screen_14_set_startSoundNumber(){
+void screen_15_set_startSoundNumber(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -515,7 +546,7 @@ void screen_14_set_startSoundNumber(){
 }
 
 //KOZEP FREKVENCIA beállítás
-void screen_15_set_middleSoundFreq(){
+void screen_16_set_middleSoundFreq(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -527,14 +558,14 @@ void screen_15_set_middleSoundFreq(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.middleSoundFreq+10 < 9999) status.cfg.middleSoundFreq += 10;
+        if (status.cfg.middleSoundFreq+100 < 9999) status.cfg.middleSoundFreq += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.middleSoundFreq-10 >= 0) status.cfg.middleSoundFreq -= 10;
+        if (status.cfg.middleSoundFreq-100 >= 0) status.cfg.middleSoundFreq -= 100;
         resetButtons();
         return;
     }
@@ -552,7 +583,7 @@ void screen_15_set_middleSoundFreq(){
 }
 
 //KOZEP HOSSZ beállítás
-void screen_16_set_middleSoundLenght(){
+void screen_17_set_middleSoundLenght(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -564,14 +595,14 @@ void screen_16_set_middleSoundLenght(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.middleSoundLenght+10 < 9999) status.cfg.middleSoundLenght += 100;
+        if (status.cfg.middleSoundLenght+100 < 9999) status.cfg.middleSoundLenght += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.middleSoundLenght-10 >= 0) status.cfg.middleSoundLenght -= 100;
+        if (status.cfg.middleSoundLenght-100 >= 0) status.cfg.middleSoundLenght -= 100;
         resetButtons();
         return;
     }
@@ -589,7 +620,7 @@ void screen_16_set_middleSoundLenght(){
 }
 
 //KOZEP SZAM beállítás
-void screen_17_set_middleSoundNumber(){
+void screen_18_set_middleSoundNumber(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -626,7 +657,7 @@ void screen_17_set_middleSoundNumber(){
 }
 
 //VEG FREKVENCIA beállítás
-void screen_18_set_endSoundFreq(){
+void screen_19_set_endSoundFreq(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -638,14 +669,14 @@ void screen_18_set_endSoundFreq(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.endSoundFreq+10 < 9999) status.cfg.endSoundFreq += 10;
+        if (status.cfg.endSoundFreq+100 < 9999) status.cfg.endSoundFreq += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.endSoundFreq-10 >= 0) status.cfg.endSoundFreq -= 10;
+        if (status.cfg.endSoundFreq-100 >= 0) status.cfg.endSoundFreq -= 100;
         resetButtons();
         return;
     }
@@ -663,7 +694,7 @@ void screen_18_set_endSoundFreq(){
 }
 
 //VEG HOSSZ beállítás
-void screen_19_set_endSoundLength(){
+void screen_20_set_endSoundLength(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -675,14 +706,14 @@ void screen_19_set_endSoundLength(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.cfg.endSoundLength+10 < 9999) status.cfg.endSoundLength += 100;
+        if (status.cfg.endSoundLength+100 < 9999) status.cfg.endSoundLength += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.cfg.endSoundLength-10 >= 0) status.cfg.endSoundLength -= 100;
+        if (status.cfg.endSoundLength-100 >= 0) status.cfg.endSoundLength -= 100;
         resetButtons();
         return;
     }
@@ -700,7 +731,7 @@ void screen_19_set_endSoundLength(){
 }
 
 //VEG SZAM beállítás
-void screen_20_set_endSoundNumber(){
+void screen_21_set_endSoundNumber(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -737,7 +768,7 @@ void screen_20_set_endSoundNumber(){
 }
 
 //Alap beállítások visszaállítása.
-void screen_21_reset_default(){
+void screen_22_reset_default(){
     lcd.setCursor(0,0);
     lcd.print("  GYARI  RESET  "); 
     lcd.setCursor(0,1);
@@ -758,7 +789,7 @@ void screen_21_reset_default(){
 }
 
 //Hang teszter
-void screen_22_set_endSoundFreq(){
+void screen_23_soundFreqTest(){
     lcd.setCursor(0,0);
     lcd.print("VISSZA FEL LE BE"); 
     lcd.setCursor(0,1);
@@ -770,14 +801,14 @@ void screen_22_set_endSoundFreq(){
 
     // FEL gomb
     if (status.upPressed) {
-        if (status.testSoundFreq+10 < 9999) status.testSoundFreq += 10;
+        if (status.testSoundFreq+100 < 9999) status.testSoundFreq += 100;
         resetButtons();
         return;
     }
 
     // LE gomb
     if (status.downPressed) {
-        if (status.testSoundFreq-10 >= 40) status.testSoundFreq -= 10;
+        if (status.testSoundFreq-100 >= 40) status.testSoundFreq -= 100;
         resetButtons();
         return;
     }
@@ -791,4 +822,26 @@ void screen_22_set_endSoundFreq(){
       status.currentScreen = 3;
     }
     resetButtons();
+}
+
+//Akkumulátor teszter
+void screen_24_battery_status() {
+  float v = measureBatteryVoltage(ADC_PIN, 10); // átlag 10 mérés
+  float soc = voltageToSoc(v);
+
+  lcd.setCursor(0,0);
+  lcd.print("AKKU:"); 
+  printLcdFloat("%05.2f", v, true);
+  lcd.print(" "); 
+  printLcdInt("%03d", soc, true);
+  lcd.print("%"); 
+  lcd.setCursor(0,1);
+  lcd.print("     VISSZA     "); 
+
+  readButtons();
+  //Vissza
+  if(status.menuPressed || status.setPressed || status.downPressed || status.upPressed) {
+    status.currentScreen = 3;
+  }
+  resetButtons();
 }

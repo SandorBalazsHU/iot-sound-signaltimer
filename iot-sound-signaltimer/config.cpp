@@ -18,7 +18,8 @@ const char* menuItems[] = {
     ">VEG HOSSZ",
     ">VEG SZAM",
     ">GYARI RESET",
-    ">HANG FREK.TESZT"
+    ">HANG FREK.TESZT",
+    ">AKKUMULATOR"
 };
 
 //Menü hossza
